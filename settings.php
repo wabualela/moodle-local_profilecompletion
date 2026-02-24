@@ -34,6 +34,13 @@ if ($hassiteconfig) {
         1
     ));
 
+    $settings->add(new admin_setting_configcheckbox(
+        'local_profilecompletion/forcefill',
+        get_string('forcefill', 'local_profilecompletion'),
+        get_string('forcefill_desc', 'local_profilecompletion'),
+        0
+    ));
+
     $settings->add(new admin_setting_configmultiselect(
         'local_profilecompletion/fieldkeys',
         get_string('fieldkeys', 'local_profilecompletion'),

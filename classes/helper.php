@@ -137,6 +137,8 @@ class helper {
             return $missing;
         }
 
+        $forcefill = (bool) get_config('local_profilecompletion', 'forcefill');
+
         $customshortnames = [];
         foreach ($configured as $fieldkey) {
             if (str_starts_with($fieldkey, 'custom:')) {
@@ -155,7 +157,7 @@ class helper {
             if (str_starts_with($fieldkey, 'core:')) {
                 $fieldname = substr($fieldkey, 5);
                 $value = isset($user->{$fieldname}) ? trim((string) $user->{$fieldname}) : '';
-                if ($value === '') {
+                if ($forcefill || $value === '') {
                     $missing[$fieldkey] = [
                         'key' => $fieldkey,
                         'type' => 'core',
@@ -173,7 +175,7 @@ class helper {
                 }
 
                 $profilefield = $profilefields[$shortname];
-                if ($profilefield->is_empty()) {
+                if ($forcefill || $profilefield->is_empty()) {
                     $missing[$fieldkey] = [
                         'key' => $fieldkey,
                         'type' => 'custom',

@@ -58,6 +58,14 @@ class missing_fields_form extends dynamic_form {
         require_once(__DIR__ . '/../../../../user/profile/lib.php');
 
         $mform = $this->_form;
+
+        $mform->addElement('html',
+            '<div class="local-profilecompletion-form-header">' .
+            '<span class="lpc-modal-icon" aria-hidden="true"><i class="fa fa-user" aria-hidden="true"></i></span>' .
+            '<p class="lpc-modal-title">' . get_string('formheader', 'local_profilecompletion') . '</p>' .
+            '</div>'
+        );
+
         $missing = $this->get_missing_fields();
 
         $profilefields = [];
@@ -248,9 +256,8 @@ class missing_fields_form extends dynamic_form {
             profile_save_data($profilepayload);
         }
 
-        if (empty(helper::get_missing_fields_for_user(\core_user::get_user((int) $USER->id, '*', MUST_EXIST)))) {
-            helper::clear_prompt_pending();
-        }
+        // Always clear after a successful save; the observer re-evaluates on next login.
+        helper::clear_prompt_pending();
 
         return ['success' => true];
     }

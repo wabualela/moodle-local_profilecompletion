@@ -35,3 +35,7 @@ $string['promptbutton'] = 'Fill missing fields';
 $string['modaltitle'] = 'Complete your profile';
 $string['savebutton'] = 'Save changes';
 $string['customfieldmissing'] = 'The custom profile field "{$a}" does not exist anymore and was ignored.';
+$string['savedsuccess'] = 'Profile updated successfully.';
+$string['forcefill'] = 'Force fill all configured fields';
+$string['forcefill_desc'] = 'When enabled, users are prompted to review and update all configured fields on every login, even if those fields already have values.';
+$string['formheader'] = 'Please complete the following profile fields.';

@@ -1,19 +1,25 @@
 {{!
-    Inline profile-completion notification.
-    Rendered hidden at the top of the body; JS moves it to #page-content and shows it.
+    Inline profile-completion notification — card style.
+    Rendered hidden at the top of the body; JS moves it to the content area and shows it.
 
     Context variables:
     * title      {string} Notification heading.
     * body       {string} Notification body text.
     * buttontext {string} Label for the "open modal" button.
 }}
-<div class="local-profilecompletion-notification alert alert-info mb-3"
+<div class="local-profilecompletion-notification"
      data-region="local-profilecompletion-notification"
      role="alert"
+     aria-live="polite"
      style="display:none;">
-    <p class="fw-semibold mb-1">{{title}}</p>
-    <p class="mb-2">{{body}}</p>
-    <button type="button" class="btn btn-primary btn-sm local-profilecompletion-open">
-        {{buttontext}}
-    </button>
+    <span class="lpc-icon" aria-hidden="true">
+        <i class="fa fa-user-circle" aria-hidden="true"></i>
+    </span>
+    <div class="lpc-body">
+        <p class="lpc-title">{{title}}</p>
+        <p class="lpc-text">{{body}}</p>
+        <button type="button" class="btn btn-primary local-profilecompletion-open">
+            {{buttontext}}
+        </button>
+    </div>
 </div>

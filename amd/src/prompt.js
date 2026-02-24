@@ -26,6 +26,8 @@
  */
 
 import ModalForm from 'core_form/modalform';
+import {add as addToast} from 'core/toast';
+import {getString} from 'core/str';
 
 /** Selector for the hidden notification element rendered by the hook. */
 const NOTIFICATION_SELECTOR = '[data-region="local-profilecompletion-notification"]';
@@ -76,7 +78,17 @@ const openModal = (config, returnFocus = null) => {
     });
 
     modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, () => {
-        window.location.reload();
+        getString('savedsuccess', 'local_profilecompletion')
+            .then((message) => {
+                addToast(message, {type: 'success', autohide: true, delay: 2000});
+                return null;
+            })
+            .catch(() => {
+                // String fetch failed; reload anyway.
+            })
+            .finally(() => {
+                setTimeout(() => window.location.reload(), 1500);
+            });
     });
 
     modalForm.show();
