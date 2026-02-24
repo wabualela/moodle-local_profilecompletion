@@ -29,10 +29,15 @@ class hook_callbacks {
     /**
      * Render missing-fields notification near top of page body.
      *
-     * @param object $hook Hook instance (supports top-of-body and legacy cached main-region hook signatures).
+     * The notification HTML is injected hidden at the top of the <body> via add_html().
+     * The AMD module then repositions it into the page content area and shows it.
+     *
+     * @param \core\hook\output\before_standard_top_of_body_html_generation $hook
      * @return void
      */
-    public static function show_missing_fields_prompt($hook): void {
+    public static function show_missing_fields_prompt(
+        \core\hook\output\before_standard_top_of_body_html_generation $hook,
+    ): void {
         global $USER, $PAGE;
 
         if (!helper::is_enabled() || !helper::is_prompt_pending()) {
@@ -57,15 +62,22 @@ class hook_callbacks {
             return;
         }
 
+        // Render the notification element hidden at the top of <body>.
+        // The AMD module will move it into #page-content and make it visible.
+        $hook->add_html($hook->renderer->render_from_template(
+            'local_profilecompletion/notification',
+            [
+                'title'      => get_string('prompttitle', 'local_profilecompletion'),
+                'body'       => get_string('promptbody', 'local_profilecompletion'),
+                'buttontext' => get_string('promptbutton', 'local_profilecompletion'),
+            ]
+        ));
+
+        // Load AMD module to reposition the notification and open the modal on click.
         $PAGE->requires->js_call_amd('local_profilecompletion/prompt', 'init', [[
-            'buttonid' => 'local-profilecompletion-open',
-            'toasttitle' => get_string('prompttitle', 'local_profilecompletion'),
-            'toastbody' => get_string('promptbody', 'local_profilecompletion'),
-            'buttontext' => get_string('promptbutton', 'local_profilecompletion'),
-            'toastdelay' => 6000,
-            'modaltitle' => get_string('modaltitle', 'local_profilecompletion'),
+            'modaltitle'    => get_string('modaltitle', 'local_profilecompletion'),
             'savebuttontext' => get_string('savebutton', 'local_profilecompletion'),
-            'formclass' => \local_profilecompletion\form\missing_fields_form::class,
+            'formclass'     => \local_profilecompletion\form\missing_fields_form::class,
         ]]);
     }
 }

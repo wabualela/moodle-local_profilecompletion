@@ -1,7 +1,19 @@
-<div class="alert alert-info local-profilecompletion-notification mb-3" role="alert" data-region="local-profilecompletion-notification">
-    <div class="fw-semibold">{{title}}</div>
-    <div>{{body}}</div>
-    <div class="mt-2">
-        <button type="button" class="btn btn-primary btn-sm" id="{{buttonid}}">{{buttontext}}</button>
-    </div>
+{{!
+    Inline profile-completion notification.
+    Rendered hidden at the top of the body; JS moves it to #page-content and shows it.
+
+    Context variables:
+    * title      {string} Notification heading.
+    * body       {string} Notification body text.
+    * buttontext {string} Label for the "open modal" button.
+}}
+<div class="local-profilecompletion-notification alert alert-info mb-3"
+     data-region="local-profilecompletion-notification"
+     role="alert"
+     style="display:none;">
+    <p class="fw-semibold mb-1">{{title}}</p>
+    <p class="mb-2">{{body}}</p>
+    <button type="button" class="btn btn-primary btn-sm local-profilecompletion-open">
+        {{buttontext}}
+    </button>
 </div>

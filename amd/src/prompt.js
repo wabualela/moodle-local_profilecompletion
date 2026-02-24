@@ -14,7 +14,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Modal launcher for local_profilecompletion.
+ * Profile completion inline notification handler.
+ *
+ * The PHP hook renders the notification element hidden at the top of <body>.
+ * This module moves it into the page content area and shows it,
+ * matching the position of the theme-checkplugins block.
  *
  * @module     local_profilecompletion/prompt
  * @copyright  2026 Moddaker
@@ -22,42 +26,41 @@
  */
 
 import ModalForm from 'core_form/modalform';
-import * as Toast from 'core/toast';
 
-let handlerBound = false;
-let activeConfig = null;
+/** Selector for the hidden notification element rendered by the hook. */
+const NOTIFICATION_SELECTOR = '[data-region="local-profilecompletion-notification"]';
 
 /**
- * Escape plain text for HTML interpolation.
- *
- * @param {string} value
- * @returns {string}
+ * Candidate selectors for the content-area insertion point, tried in order.
+ * - #page-content   — mb2nl theme main content wrapper
+ * - #region-main    — Moodle standard region
+ * - [data-region="main-content"] — Boost / other themes
  */
-const escapeHtml = (value) => {
-    const el = document.createElement('div');
-    el.textContent = value;
-    return el.innerHTML;
+const CONTENT_SELECTORS = [
+    '#page-content',
+    '#region-main',
+    '[data-region="main-content"]',
+];
+
+/**
+ * Find the best available content-area container.
+ *
+ * @returns {Element|null}
+ */
+const findContentArea = () => {
+    for (const selector of CONTENT_SELECTORS) {
+        const el = document.querySelector(selector);
+        if (el) {
+            return el;
+        }
+    }
+    return null;
 };
 
 /**
- * Build toast body with action button.
+ * Open the profile-completion modal form.
  *
- * @param {Object} config
- * @returns {string}
- */
-const getToastMessage = (config) => {
-    return '<div>' + escapeHtml(config.toastbody || '') + '</div>' +
-        '<div class="mt-2">' +
-        '<button type="button" class="btn btn-primary btn-sm local-profilecompletion-toast-action">' +
-        escapeHtml(config.buttontext || '') +
-        '</button>' +
-        '</div>';
-};
-
-/**
- * Open profile completion modal.
- *
- * @param {Object} config
+ * @param {Object}       config
  * @param {HTMLElement|null} returnFocus
  */
 const openModal = (config, returnFocus = null) => {
@@ -80,35 +83,42 @@ const openModal = (config, returnFocus = null) => {
 };
 
 /**
- * Initialise profile completion prompt button.
+ * Initialise the profile-completion inline notification.
+ *
+ * Moves the hidden notification element into the page content area,
+ * makes it visible, and wires the "fill missing fields" button to the modal.
  *
  * @param {Object} config
+ * @param {string} config.modaltitle
+ * @param {string} config.savebuttontext
+ * @param {string} config.formclass
  */
 export const init = (config) => {
     if (!config) {
         return;
     }
 
-    activeConfig = config;
-
-    if (!handlerBound) {
-        document.addEventListener('click', (e) => {
-            const trigger = e.target.closest('.local-profilecompletion-toast-action');
-            if (!trigger || !activeConfig) {
-                return;
-            }
-
-            e.preventDefault();
-            openModal(activeConfig, trigger);
-        });
-        handlerBound = true;
+    const notificationEl = document.querySelector(NOTIFICATION_SELECTOR);
+    if (!notificationEl) {
+        return;
     }
 
-    Toast.add(getToastMessage(config), {
-        title: escapeHtml(config.toasttitle || ''),
-        type: 'warning',
-        autohide: true,
-        delay: Number(config.toastdelay) || 6000,
-        closeButton: true,
+    // Move the notification from the top of <body> into the content area.
+    const contentArea = findContentArea();
+    if (contentArea) {
+        contentArea.prepend(notificationEl);
+    }
+
+    // Show the notification now that it is in the right place.
+    notificationEl.style.display = '';
+
+    // Handle the "fill missing fields" button click.
+    notificationEl.addEventListener('click', (e) => {
+        const trigger = e.target.closest('.local-profilecompletion-open');
+        if (!trigger) {
+            return;
+        }
+        e.preventDefault();
+        openModal(config, trigger);
     });
 };
